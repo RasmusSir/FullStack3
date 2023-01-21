@@ -22,7 +22,7 @@ app.use(express.json())
 
 let persons = [
   {
-    "name": "Arto Hellas",
+    "name": "Arto Hellasss",
     "number": "040-123456",
     "id": 1
   },
@@ -75,6 +75,16 @@ app.delete('/api/persons/:id', (request, response) => {
   response.status(204).end()
 })
 
+app.put('/api/persons/:id', (request, response) => {
+  const id = Number(request.params.id)
+  const updatedPerson = request.body
+  console.log('JAAAHA', response.data);
+  
+
+  persons = persons.map(person => person.id === id ? updatedPerson : person)
+
+  response.json(updatedPerson)
+})
 
 const generateId = () => {
   const id = Math.floor(Math.random() * 1000);
