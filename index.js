@@ -81,7 +81,7 @@ app.get('/info', (req, res) => {
 
   app.post('/api/persons', (request, response) => {
     const body = request.body
-    console.log('body', body);
+    console.log('Logging body in app.post', body);
 
     if (!body.name) {
         return response.status(400).json({ 
