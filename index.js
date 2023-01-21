@@ -78,8 +78,8 @@ app.delete('/api/persons/:id', (request, response) => {
 app.put('/api/persons/:id', (request, response) => {
   const id = Number(request.params.id)
   const updatedPerson = request.body
-  console.log('JAAAHA', response.data);
-  
+  console.log('JAAAHA', request.body);
+
 
   persons = persons.map(person => person.id === id ? updatedPerson : person)
 
@@ -94,25 +94,28 @@ const generateId = () => {
 app.post('/api/persons', (request, response) => {
   const body = request.body
   console.log('Logging body in app.post', body);
-
-  if (!body.name) {
+  console.log("testing", !body.name);
+  if (!body.name === true) {
+    console.log('are we in the if statement', body);
     return response.status(400).json({
       error: 'name missing'
     })
   }
 
-  if (!body.number) {
-    return response.status(400).json({
+  if (!body.number===true) {
+    console.log('are we in the second if statement', body);
+    return response.status(400).json({      
       error: 'number missing'
     })
   }
-  if (persons.some(person => person.name === body.name)) {
+  
+  if (persons.some(person => person.name.toLowerCase() === body.name.toLowerCase())) {
     return response.status(400).json({
       error: 'values must be unique'
     })
   }
 
-  const person = {
+  let person = {
     name: body.name,
     number: body.number || false,
     id: generateId(),
