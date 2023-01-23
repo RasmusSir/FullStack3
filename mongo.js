@@ -10,12 +10,12 @@ const password = process.argv[2]
 const url = process.env.MONGODB_URI
 
 mongoose.connect(url)
-  .then(result => {
-    console.log('connected to MongoDB')
-  })
-  .catch((error) => {
-    console.log('error connecting to MongoDB:', error.message)
-  })
+    .then(result => {
+        console.log('connected to MongoDB')
+    })
+    .catch((error) => {
+        console.log('error connecting to MongoDB:', error.message)
+    })
 
 
 const Person = mongoose.model('Person', personSchema)
@@ -37,7 +37,7 @@ if (!name === true || !number === null) {
         name: `${name}`,
         number: `${number}`,
     })
-    
+
     person.save().then(result => {
         console.log(`added ${person.name} number ${person.number} to phonebook (result: ${result}!`)
         mongoose.connection.close()
