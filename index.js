@@ -74,7 +74,7 @@ app.delete('/api/persons/:id', (request, response, next) => {
 //Jo syötetyn henkilön numeron vaihtaminen
 app.put('/api/persons/:id', (request, response, next) => {
   const { name, number } = request.body
-  console.log('Changing Name To', request.body);
+  console.log('Changing Name To', request.body)
 
   Person.findByIdAndUpdate(request.params.id,
     { name, number },
@@ -90,7 +90,7 @@ app.put('/api/persons/:id', (request, response, next) => {
 // Uuden henkilön lisääminen
 app.post('/api/persons', (request, response, next) => {
   const body = request.body
-  console.log('Logging body in app.post', body);
+  console.log('Logging body in app.post', body)
 
   if (!body.name === true) {
     return response.status(400).json({
