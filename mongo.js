@@ -7,14 +7,16 @@ if (process.argv.length < 3) {
 
 const password = process.argv[2]
 
-const url = `mongodb+srv://RasmusSir:${password}@cluster0.kcbd2oj.mongodb.net/personApp?retryWrites=true&w=majority`
-mongoose.set('strictQuery', false)
-mongoose.connect(url)
+const url = process.env.MONGODB_URI
 
-const personSchema = new mongoose.Schema({
-    name: String,
-    number: String,
-})
+mongoose.connect(url)
+  .then(result => {
+    console.log('connected to MongoDB')
+  })
+  .catch((error) => {
+    console.log('error connecting to MongoDB:', error.message)
+  })
+
 
 const Person = mongoose.model('Person', personSchema)
 

@@ -1,7 +1,11 @@
+require('dotenv').config()
+
 const cors = require('cors')
 const express = require('express')
 const morgan = require('morgan')
 const app = express()
+const Person = require('./models/person')
+
 
 app.use(cors())
 app.use(express.static('build'))
@@ -20,7 +24,7 @@ app.use(morgan(function (tokens, req, res) {
 
 app.use(express.json())
 
-let persons = [
+/* let persons = [
   {
     "name": "Arto Hellasss",
     "number": "040-123456",
@@ -41,88 +45,106 @@ let persons = [
     "number": "39-23-6423122",
     "id": 4
   }
-]
+] */
 
-app.get('/info', (req, res) => {
-  res.send(`<p>Phonebook has info for ${persons.length} people</p>
+app.get('/info', (request, response) => {
+  Person.countDocuments({}).then(count => {
+    response.send(`<p>Phonebook has info for ${count} people</p>
     <p>${new Date().toString()}</p>`)
+  }).catch(error => {
+    console.log('The following app.get/info error should be handled somehow:', error);
+  })
 })
 
-app.get('/api/persons', (req, res) => {
-  res.json(persons)
+app.get('/api/persons', (request, response) => {
+  Person.find({}).then(persons => {
+    response.json(persons)
+  })
 })
 
 app.get('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id)
+  Person.findById(request.params.id).then(person => {
+    response.json(person)
+  })
+}
+  /*   const id = Number(request.params.id)
   const person = persons.find(person => person.id === id)
-
   if (person) {
     response.json(person)
     console.log('nootti', person);
-
   } else {
     console.log('nootti2', person);
-
     response.status(404).end()
   }
-})
+} */)
 
 
 app.delete('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id)
-  persons = persons.filter(person => person.id !== id)
-
-  response.status(204).end()
+  Person.findByIdAndDelete(request.params.id).then(person => {
+    if (!person === true) {
+      return response.status(404).json({ error: "Error: Cannot find person" })
+    }
+    response.status(204).end()
+  })
+  //const id = Number(request.params.id)
+  //persons = persons.filter(person => person.id !== id)
+  //response.status(204).end()
 })
 
 app.put('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id)
-  const updatedPerson = request.body
-  console.log('JAAAHA', request.body);
+  const newBody = request.body
+  const id = request.params.id
+  console.log('Changing Name To', request.body);
 
+  Person.findByIdAndUpdate(id, newBody, { new: true })
+    .then(updatedPerson => {
+      response.json(updatedPerson)
+    })
+    .catch(error => {
+      console.log('The following app.put/persons/:id error should be handled somehow:', error);
+      
+      next(error)
+    })
+  })
 
-  persons = persons.map(person => person.id === id ? updatedPerson : person)
-
-  response.json(updatedPerson)
-})
-
-const generateId = () => {
+/* const generateId = () => {
   const id = Math.floor(Math.random() * 1000);
   return id
-}
+} */
 
 app.post('/api/persons', (request, response) => {
   const body = request.body
   console.log('Logging body in app.post', body);
-  console.log("testing", !body.name);
+
   if (!body.name === true) {
-    console.log('are we in the if statement', body);
     return response.status(400).json({
       error: 'name missing'
     })
   }
 
-  if (!body.number===true) {
-    console.log('are we in the second if statement', body);
-    return response.status(400).json({      
+  if (!body.number === true) {
+    return response.status(400).json({
       error: 'number missing'
     })
   }
-  
-  if (persons.some(person => person.name.toLowerCase() === body.name.toLowerCase())) {
-    return response.status(400).json({
-      error: 'values must be unique'
+
+  /*   if (persons.some(person => person.name.toLowerCase() === body.name.toLowerCase())) { */
+  Person.findOne({ name: body.name }).then(personExisting => {
+    if (personExisting) {
+      return response.status(400).json({
+        error: 'values must be unique'
+      })
+    }
+
+    const person = new Person({
+      name: body.name,
+      number: body.number || false,
+      /* id: generateId(), */
     })
-  }
-
-  let person = {
-    name: body.name,
-    number: body.number || false,
-    id: generateId(),
-  }
-  persons = persons.concat(person)
-
-  response.json(person)
+    person.save().then(savedPerson => {
+      response.json(savedPerson)
+    })
+  })
 })
 
 
