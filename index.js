@@ -24,29 +24,8 @@ app.use(morgan(function (tokens, req, res) {
 
 app.use(express.json())
 
-/* let persons = [
-  {
-    "name": "Arto Hellasss",
-    "number": "040-123456",
-    "id": 1
-  },
-  {
-    "name": "Ada Lovelace",
-    "number": "39-44-5323523",
-    "id": 2
-  },
-  {
-    "name": "Dan Abramov",
-    "number": "12-43-234345",
-    "id": 3
-  },
-  {
-    "name": "Mary Popspendieck",
-    "number": "39-23-6423122",
-    "id": 4
-  }
-] */
 
+//Infosivun luominen
 app.get('/info', (request, response) => {
   Person.countDocuments({}).then(count => {
     response.send(`<p>Phonebook has info for ${count} people</p>
@@ -56,29 +35,22 @@ app.get('/info', (request, response) => {
   })
 })
 
+// Henkilöiden hekaminen
 app.get('/api/persons', (request, response) => {
   Person.find({}).then(persons => {
     response.json(persons)
   })
 })
 
+// Yksittäisen henkilön hakeminen
 app.get('/api/persons/:id', (request, response) => {
   Person.findById(request.params.id).then(person => {
     response.json(person)
   })
 }
-  /*   const id = Number(request.params.id)
-  const person = persons.find(person => person.id === id)
-  if (person) {
-    response.json(person)
-    console.log('nootti', person);
-  } else {
-    console.log('nootti2', person);
-    response.status(404).end()
-  }
-} */)
+)
 
-
+// Henkilön poistaminen listalta
 app.delete('/api/persons/:id', (request, response) => {
   Person.findByIdAndDelete(request.params.id).then(person => {
     if (!person === true) {
@@ -86,11 +58,9 @@ app.delete('/api/persons/:id', (request, response) => {
     }
     response.status(204).end()
   })
-  //const id = Number(request.params.id)
-  //persons = persons.filter(person => person.id !== id)
-  //response.status(204).end()
 })
 
+//Jo syötetyn henkilön numeron vaihtaminen
 app.put('/api/persons/:id', (request, response) => {
   const newBody = request.body
   const id = request.params.id
@@ -102,16 +72,12 @@ app.put('/api/persons/:id', (request, response) => {
     })
     .catch(error => {
       console.log('The following app.put/persons/:id error should be handled somehow:', error);
-      
+
       next(error)
     })
-  })
+})
 
-/* const generateId = () => {
-  const id = Math.floor(Math.random() * 1000);
-  return id
-} */
-
+// Uuden henkilön lisääminen
 app.post('/api/persons', (request, response) => {
   const body = request.body
   console.log('Logging body in app.post', body);
@@ -128,7 +94,6 @@ app.post('/api/persons', (request, response) => {
     })
   }
 
-  /*   if (persons.some(person => person.name.toLowerCase() === body.name.toLowerCase())) { */
   Person.findOne({ name: body.name }).then(personExisting => {
     if (personExisting) {
       return response.status(400).json({
@@ -139,7 +104,6 @@ app.post('/api/persons', (request, response) => {
     const person = new Person({
       name: body.name,
       number: body.number || false,
-      /* id: generateId(), */
     })
     person.save().then(savedPerson => {
       response.json(savedPerson)
